@@ -138,7 +138,7 @@ export async function setupStdioServer() {
 if (process.argv[1]?.endsWith('server.ts') || process.argv[1]?.endsWith('server.js')) {
     const isHttpMode = process.argv.includes('--http');
     if (isHttpMode) {
-        const port = parseInt(process.env.PORT || '3000');
+        const port = parseInt(process.env.PORT || '10000');
         setupHttpServer(port);
     } else {
         setupStdioServer();
