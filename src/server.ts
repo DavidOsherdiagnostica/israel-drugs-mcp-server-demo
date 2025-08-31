@@ -52,11 +52,11 @@ export function setupHttpServer(port: number = 3000) {
     const app = express();
     
     // Add CORS middleware
-    app.use(cors({
-        origin: '*', // Configure appropriately for production
-        exposedHeaders: ['Mcp-Session-Id'],
-        allowedHeaders: ['Content-Type', 'mcp-session-id']
-    }));
+app.use(cors({
+    origin: '*',
+    exposedHeaders: ['Mcp-Session-Id'],
+    allowedHeaders: ['Content-Type', 'mcp-session-id', 'Host']
+}));
     
     app.use(express.json());
 
@@ -75,8 +75,8 @@ export function setupHttpServer(port: number = 3000) {
                 onsessioninitialized: (sessionId) => {
                     transports[sessionId] = transport;
                 },
-                enableDnsRebindingProtection: true,
-                allowedHosts: ['127.0.0.1', 'localhost', 'localhost:3000']
+                enableDnsRebindingProtection: false,
+                allowedHosts: ['*']
             });
 
             // Clean up transport when closed
