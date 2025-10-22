@@ -92,9 +92,9 @@ export const API_BEHAVIOR = {
 
   // ATC codes: only level 4 works in SearchGeneric
   ATC_CONSTRAINTS: {
-    SUPPORTED_LEVEL: 4, // Only 4-character codes work
-    LEVEL_4_LENGTH: 4, // e.g., "N02BE"
-    LEVEL_5_LENGTH: 6, // e.g., "N02BE01" - NOT supported
+    SUPPORTED_LEVEL: 4, // Level 4 = 5 characters (e.g., "N02BE", "M01AB")
+    LEVEL_4_LENGTH: 5, // Level 4: 1 letter + 2 digits + 2 letters = 5 chars
+    LEVEL_5_LENGTH: 7, // Level 5: Level 4 + 2 digits = 7 chars (e.g., "N02BE01")
   },
 
   // Default values for API calls

@@ -1,0 +1,281 @@
+/**
+ * Complete symptom list for Israeli healthcare system
+ * This list must match exactly with the API - any deviation will cause errors
+ */
+
+export interface SymptomItem {
+  bySymptomSecond: number;
+  bySymptomName: string;
+}
+
+export interface SymptomCategory {
+  bySymptomMain: string;
+  list: SymptomItem[];
+}
+
+export const SYMPTOMS_LIST: SymptomCategory[] = [
+  {
+    bySymptomMain: "אי ספיקת ורידים ברגליים",
+    list: [{ bySymptomSecond: 1, bySymptomName: "הקלה בכאב ובצקת הנלווים לזרימת דם ורידית לא תקינה" }]
+  },
+  {
+    bySymptomMain: "אלרגיה",
+    list: [{ bySymptomSecond: 2, bySymptomName: "אלרגיה" }]
+  },
+  {
+    bySymptomMain: "אנטי פטרייתי",
+    list: [
+      { bySymptomSecond: 3, bySymptomName: "אנטי פטרייתי - וגינלי" },
+      { bySymptomSecond: 4, bySymptomName: "אנטי פטרייתי לעור" },
+      { bySymptomSecond: 5, bySymptomName: "אנטי פטרייתי לציפורניים" },
+      { bySymptomSecond: 6, bySymptomName: "תפרחת חיתולים" }
+    ]
+  },
+  {
+    bySymptomMain: "אף-אוזן-גרון",
+    list: [
+      { bySymptomSecond: 7, bySymptomName: "" },
+      { bySymptomSecond: 8, bySymptomName: "גודש באף ובאוזניים" },
+      { bySymptomSecond: 9, bySymptomName: "הקלה בתסמיני הצטננות ונזלת אלרגית" },
+      { bySymptomSecond: 10, bySymptomName: "הקלה מקומית על גודש באף" },
+      { bySymptomSecond: 11, bySymptomName: "הקלה מקומית על תסמיני אלרגיה" },
+      { bySymptomSecond: 12, bySymptomName: "הקלת שיעול" },
+      { bySymptomSecond: 13, bySymptomName: "טיפול בנזלת אלרגית ואלרגיה בעור" },
+      { bySymptomSecond: 14, bySymptomName: "טיפול מקומי להקלה על גודש באף" },
+      { bySymptomSecond: 15, bySymptomName: "כאבי אזניים" },
+      { bySymptomSecond: 16, bySymptomName: "כאבי גרון" },
+      { bySymptomSecond: 17, bySymptomName: "להפחתת גודש באף" },
+      { bySymptomSecond: 18, bySymptomName: "להקלת שיעול וגודש באף" },
+      { bySymptomSecond: 19, bySymptomName: "מחטא ומקל על כאבי גרון" },
+      { bySymptomSecond: 20, bySymptomName: "מכייח ולהקלת שיעול" },
+      { bySymptomSecond: 21, bySymptomName: "מכייח ומדכא שיעול" },
+      { bySymptomSecond: 22, bySymptomName: "מכייח מפחית צמיגות ליחה" },
+      { bySymptomSecond: 23, bySymptomName: "נזלת אלרגית" },
+      { bySymptomSecond: 24, bySymptomName: "תכשיר משולב להקלה על גודש באף" },
+      { bySymptomSecond: 25, bySymptomName: "תכשיר משולב לטיפול בכאבים גודש באף וחום" },
+      { bySymptomSecond: 26, bySymptomName: "תכשיר משולב לטיפול בכאבים גודש באף שיעול וחום" }
+    ]
+  },
+  {
+    bySymptomMain: "אקנה",
+    list: [{ bySymptomSecond: 27, bySymptomName: "אקנה" }]
+  },
+  {
+    bySymptomMain: "בעיות בשתן",
+    list: [
+      { bySymptomSecond: 28, bySymptomName: "הבססת השתן" },
+      { bySymptomSecond: 29, bySymptomName: "כעזר בזיהומים בכליות ובדרכי השתן" }
+    ]
+  },
+  {
+    bySymptomMain: "בעיות עיכול",
+    list: [
+      { bySymptomSecond: 30, bySymptomName: "" },
+      { bySymptomSecond: 31, bySymptomName: "אבני מרה" },
+      { bySymptomSecond: 32, bySymptomName: "אנזימי עיכול ומלחי מרה" },
+      { bySymptomSecond: 33, bySymptomName: "בעיות לבלב" },
+      { bySymptomSecond: 34, bySymptomName: "בעיות עיכול" },
+      { bySymptomSecond: 35, bySymptomName: "גזים במבוגרים" },
+      { bySymptomSecond: 36, bySymptomName: "הקלת עצירות" },
+      { bySymptomSecond: 37, bySymptomName: "הקלת צרבת וחומציות יתר בקיבה" },
+      { bySymptomSecond: 38, bySymptomName: "ויטמינים ומינרלים - תוספת סידן" },
+      { bySymptomSecond: 39, bySymptomName: "צרבת + ויטמינים ומינרלים" },
+      { bySymptomSecond: 40, bySymptomName: "שלשול" },
+      { bySymptomSecond: 41, bySymptomName: "שלשול, כאבי בטן וכד" }
+    ]
+  },
+  {
+    bySymptomMain: "הגלולה ליום שאחרי למניעת הריון",
+    list: [{ bySymptomSecond: 42, bySymptomName: "הגלולה ליום שאחרי למניעת הריון" }]
+  },
+  {
+    bySymptomMain: "הזעת יתר",
+    list: [{ bySymptomSecond: 43, bySymptomName: "הזעת יתר" }]
+  },
+  {
+    bySymptomMain: "הפסקת עישון",
+    list: [{ bySymptomSecond: 44, bySymptomName: "הפסקת עישון" }]
+  },
+  {
+    bySymptomMain: "הקרחה",
+    list: [
+      { bySymptomSecond: 45, bySymptomName: "הקרחה" },
+      { bySymptomSecond: 46, bySymptomName: "טיפול בהתקרחות תורשתית בגברים או נשים" }
+    ]
+  },
+  {
+    bySymptomMain: "הרגעה ומשרה שינה",
+    list: [{ bySymptomSecond: 47, bySymptomName: "הרגעה ומשרה שינה" }]
+  },
+  {
+    bySymptomMain: "ויטמינים ומינרלים",
+    list: [
+      { bySymptomSecond: 48, bySymptomName: "מולטי ויטמין" },
+      { bySymptomSecond: 49, bySymptomName: "תוסף ברזל" },
+      { bySymptomSecond: 50, bySymptomName: "תוסף ברזל וחומצה פולית" },
+      { bySymptomSecond: 51, bySymptomName: "תוסף ויטמין B6" },
+      { bySymptomSecond: 52, bySymptomName: "תוסף ויטמין D" },
+      { bySymptomSecond: 53, bySymptomName: "תוסף ויטמין E" },
+      { bySymptomSecond: 54, bySymptomName: "תוסף ויטמינים מקבוצת B" },
+      { bySymptomSecond: 55, bySymptomName: "תוסף חומצה פולית" },
+      { bySymptomSecond: 56, bySymptomName: "תוסף סידן" },
+      { bySymptomSecond: 57, bySymptomName: "תוסף סידן וויטמין D" }
+    ]
+  },
+  {
+    bySymptomMain: "חיטוי העור",
+    list: [{ bySymptomSecond: 58, bySymptomName: "חיטוי העור" }]
+  },
+  {
+    bySymptomMain: "חיטוי פצעים / כוויות קלות",
+    list: [{ bySymptomSecond: 59, bySymptomName: "חיטוי פצעים / כוויות קלות" }]
+  },
+  {
+    bySymptomMain: "חלל הפה",
+    list: [
+      { bySymptomSecond: 60, bySymptomName: "חיטוי חלל הפה" },
+      { bySymptomSecond: 61, bySymptomName: "שכוך כאבים בחלל הפה" }
+    ]
+  },
+  {
+    bySymptomMain: "טחורים",
+    list: [{ bySymptomSecond: 62, bySymptomName: "טחורים" }]
+  },
+  {
+    bySymptomMain: "יבלות",
+    list: [{ bySymptomSecond: 63, bySymptomName: "יבלות" }]
+  },
+  {
+    bySymptomMain: "ילדים",
+    list: [
+      { bySymptomSecond: 64, bySymptomName: "" },
+      { bySymptomSecond: 65, bySymptomName: "גזים בילדים" },
+      { bySymptomSecond: 66, bySymptomName: "הקלה בכאבי צמיחת שיניים" },
+      { bySymptomSecond: 67, bySymptomName: "הקלה מקומית על גודש באף בילדים" },
+      { bySymptomSecond: 68, bySymptomName: "הקלת עצירות בילדים" },
+      { bySymptomSecond: 69, bySymptomName: "שיכוך כאבים והורדת חום לילדים" }
+    ]
+  },
+  {
+    bySymptomMain: "ילדים- שיכוך כאבים והורדת חום",
+    list: [
+      { bySymptomSecond: 70, bySymptomName: "נוגד דלקת שיכוך כאבים והורדת חום לילדים" },
+      { bySymptomSecond: 71, bySymptomName: "שיכוך כאבים והורדת חום לילדים" }
+    ]
+  },
+  {
+    bySymptomMain: "לב וכלי דם",
+    list: [{ bySymptomSecond: 72, bySymptomName: "עיכוב הצמתת טסיות דם" }]
+  },
+  {
+    bySymptomMain: "לשיכוך כאבי שרירים ופרקים",
+    list: [
+      { bySymptomSecond: 73, bySymptomName: "טיפול מקומי לשיכוך כאבי שרירים ופרקים" },
+      { bySymptomSecond: 74, bySymptomName: "לטיפול בכאב עצבי מסוכרת או אחרי שלבקת חוגרת" },
+      { bySymptomSecond: 75, bySymptomName: "לשיכוך כאבי פרקים " }
+    ]
+  },
+  {
+    bySymptomMain: "מאלחש מקומי",
+    list: [
+      { bySymptomSecond: 76, bySymptomName: "מאלחש מקומי לאיבר המין הגברי" },
+      { bySymptomSecond: 77, bySymptomName: "מאלחש מקומי לעור" }
+    ]
+  },
+  {
+    bySymptomMain: "מחלת הנסיעה",
+    list: [{ bySymptomSecond: 78, bySymptomName: "מחלת הנסיעה בחילות" }]
+  },
+  {
+    bySymptomMain: "מערכת המין והשתן",
+    list: [
+      { bySymptomSecond: 79, bySymptomName: "" },
+      { bySymptomSecond: 80, bySymptomName: "זיהומים פטרייתיים בנרתיק" },
+      { bySymptomSecond: 81, bySymptomName: "טיפול בזיהום חיידקי או פטרייתי בנרתיק" },
+      { bySymptomSecond: 82, bySymptomName: "שיכוך כאב ואו הורדת חום" }
+    ]
+  },
+  {
+    bySymptomMain: "עור",
+    list: [
+      { bySymptomSecond: 83, bySymptomName: "הסרת יבלות וירליות, יבלות והתקשויות עור" },
+      { bySymptomSecond: 84, bySymptomName: "חיטוי" },
+      { bySymptomSecond: 85, bySymptomName: "חיטוי פצעים / כוויות קלות" },
+      { bySymptomSecond: 86, bySymptomName: "טיפול בהתקרחות תורשתית בגברים או נשים" },
+      { bySymptomSecond: 87, bySymptomName: "טיפול בזיהומי עור פטרייתים" },
+      { bySymptomSecond: 88, bySymptomName: "יובש בעור" },
+      { bySymptomSecond: 89, bySymptomName: "לטיפול בגרדת (סקביאס)" },
+      { bySymptomSecond: 90, bySymptomName: "לעור - גירויים" },
+      { bySymptomSecond: 91, bySymptomName: "מאלחש מקומי לעור" },
+      { bySymptomSecond: 92, bySymptomName: "קשקשים בקרקפת" }
+    ]
+  },
+  {
+    bySymptomMain: "עיכוב הצמתת טסיות דם",
+    list: [{ bySymptomSecond: 93, bySymptomName: "עיכוב הצמתת טסיות דם" }]
+  },
+  {
+    bySymptomMain: "עין",
+    list: [
+      { bySymptomSecond: 94, bySymptomName: "גירוי בעין" },
+      { bySymptomSecond: 95, bySymptomName: "הקלה בצריבה, גירוי ואדמומיות" },
+      { bySymptomSecond: 96, bySymptomName: "הרגעה מגירויים" },
+      { bySymptomSecond: 97, bySymptomName: "טיפול מונע לדלקת" },
+      { bySymptomSecond: 98, bySymptomName: "יובש בעין" }
+    ]
+  },
+  {
+    bySymptomMain: "פה ושפתיים",
+    list: [
+      { bySymptomSecond: 99, bySymptomName: "טיפול באפטות" },
+      { bySymptomSecond: 100, bySymptomName: "טיפול בפצעי קור (הרפס השפתיים)" }
+    ]
+  },
+  {
+    bySymptomMain: "פריחה אלרגית / עקיצות",
+    list: [{ bySymptomSecond: 101, bySymptomName: "פריחה אלרגית / עקיצות" }]
+  },
+  {
+    bySymptomMain: "שיכוך כאבים והורדת חום",
+    list: [
+      { bySymptomSecond: 102, bySymptomName: "להורדת חום ולכאבים כגון כאבי ראש" },
+      { bySymptomSecond: 103, bySymptomName: "לשיכוך כאבים כגון מיגרנה וכאבי מחזור" },
+      { bySymptomSecond: 104, bySymptomName: "נוגד דלקת להורדת חום ולכאבים כגון כאבי ראש" },
+      { bySymptomSecond: 105, bySymptomName: "נוגד דלקת להורדת חום ולכאבים כגון ראש ומחזור" },
+      { bySymptomSecond: 106, bySymptomName: "נוגד דלקת להורדת חום ולכאבים כגון ראש ושריר" },
+      { bySymptomSecond: 107, bySymptomName: "נוגד דלקת להורדת חום ולכאבים כגון ראש מחזור ושריר" },
+      { bySymptomSecond: 108, bySymptomName: "נוגד דלקת, שיכוך כאבים והורדת חום לילדים" },
+      { bySymptomSecond: 109, bySymptomName: "שיכוך כאבים והורדת חום" },
+      { bySymptomSecond: 110, bySymptomName: "שיכוך כאבים והורדת חום לילדים" },
+      { bySymptomSecond: 111, bySymptomName: "תכשיר משולב לטיפול בכאבים שיעול וחום" }
+    ]
+  },
+  {
+    bySymptomMain: "שיכוך כאבים מקומי",
+    list: [{ bySymptomSecond: 112, bySymptomName: "טיפול מקומי לשיכוך כאבים בשריר ובשלד" }]
+  }
+];
+
+/**
+ * Helper function to generate formatted symptom list for tool descriptions
+ */
+export function generateSymptomsDescription(): string {
+  return SYMPTOMS_LIST.map(category => {
+    const symptoms = category.list
+      .filter(s => s.bySymptomName.trim() !== '')
+      .map(s => s.bySymptomName)
+      .join(', ');
+    return `**Category: ${category.bySymptomMain}**\n- Symptoms: ${symptoms}`;
+  }).join('\n\n');
+}
+
+/**
+ * Get total count of categories and symptoms
+ */
+export function getSymptomStats() {
+  return {
+    totalCategories: SYMPTOMS_LIST.length,
+    totalSymptoms: SYMPTOMS_LIST.reduce((sum, cat) => sum + cat.list.length, 0)
+  };
+}
+

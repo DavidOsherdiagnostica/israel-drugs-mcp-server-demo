@@ -19,10 +19,8 @@ export const DrugRegistrationNumberSchema = z
   .string()
   .regex(/^\d{3}\s\d{2}\s\d{5}\s\d{2}$/, 'Invalid drug registration number format');
 
-export const AtcCodeSchema = z
-  .string()
-  .regex(/^[A-Z]\d{2}[A-Z]{2}$/, 'ATC code must be exactly 4 characters (level 4)')
-  .length(API_BEHAVIOR.ATC_CONSTRAINTS.LEVEL_4_LENGTH, 'Only ATC level 4 codes are supported');
+// Removed strict ATC validation - let the API decide what's valid
+export const AtcCodeSchema = z.string().min(1, 'ATC code cannot be empty');
 
 export const SymptomNameSchema = z
   .string()
@@ -86,35 +84,12 @@ export function validateDrugRegistrationNumber(input: string): string {
 }
 
 /**
- * Validates and converts ATC code to level 4 format
+ * Validates ATC code - just trim and uppercase, no strict validation
+ * Let the API decide what's valid
  */
 export function validateAtcCode(input: string): string {
-  const trimmed = input.trim().toUpperCase();
-
-  // If it's level 5 (6 chars), convert to level 4
-  if (trimmed.length === API_BEHAVIOR.ATC_CONSTRAINTS.LEVEL_5_LENGTH) {
-    const level4Code = trimmed.substring(0, API_BEHAVIOR.ATC_CONSTRAINTS.LEVEL_4_LENGTH);
-    // console.warn(`ATC level 5 code '${trimmed}' converted to level 4: '${level4Code}'`);
-    return validateAtcCode(level4Code); // Recursive validation
-  }
-
-  try {
-    return AtcCodeSchema.parse(trimmed);
-  } catch (error) {
-    throw new IsraelDrugsError(ErrorType.INVALID_ATC_CODE, `Invalid ATC code: ${input}`, {
-      severity: ErrorSeverity.MEDIUM,
-      suggestions: [
-        "Use ATC level 4 codes only (4 characters, e.g., 'N02BE')",
-        "Get ATC codes from 'explore_therapeutic_categories' tool",
-        'Level 5 codes are automatically converted to level 4',
-      ],
-      details: {
-        input,
-        expectedFormat: '4 characters (e.g., N02BE)',
-        supportedLevel: 4,
-      },
-    });
-  }
+  // Just clean it up and let the API validate
+  return input.trim().toUpperCase();
 }
 
 /**

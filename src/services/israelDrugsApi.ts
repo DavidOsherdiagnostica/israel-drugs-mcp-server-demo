@@ -279,21 +279,7 @@ export class IsraelDrugsApiClient {
   }
 
   private validateSearchGenericRequest(request: SearchGenericRequest): void {
-    // Validate ATC code format if provided
-    if (request.atcId && request.atcId.length !== 4) {
-      throw new IsraelDrugsError(
-        ErrorType.INVALID_ATC_CODE,
-        'ATC code must be exactly 4 characters (level 4 only)',
-        {
-          severity: ErrorSeverity.MEDIUM,
-          suggestions: [
-            'Use 4-character ATC codes only (e.g., "N02BE")',
-            'Level 5 codes (6 characters) are not supported',
-            'Get valid ATC codes from GetAtcList endpoint',
-          ],
-        },
-      );
-    }
+    // No ATC validation - let the API decide what's valid
 
     if (request.pageIndex < 1) {
       throw new IsraelDrugsError(ErrorType.INVALID_INPUT, 'Page index must start from 1', {

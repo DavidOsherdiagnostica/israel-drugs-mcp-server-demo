@@ -1,7 +1,8 @@
 /**
  * Symptom Exploration Tool
  * Enables AI agents to discover and navigate available medical conditions and symptoms
- * Transforms GetBySymptom API into intelligent symptom discovery system
+ * NOTE: This tool is now OPTIONAL - symptom list is included in find_drugs_for_symptom tool description
+ * Kept for backward compatibility and dynamic symptom discovery if needed
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';

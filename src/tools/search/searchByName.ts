@@ -46,6 +46,12 @@ export function registerSearchByNameTool(server: McpServer): void {
 - Brand name and generic name cross-referencing
 - Multi-language support (Hebrew and English)
 
+**Pagination:**
+- Results are returned 10 per page (typically)
+- Use 'page' parameter to navigate through results (starts from 1)
+- Check totalPages in response to see if more results are available
+- Example: page=1 for first 10 results, page=2 for next 10, etc.
+
 **Patient Access Considerations:**
 - has_prescription: Patient has access to prescription medications
 - otc_only: Focus on over-the-counter medications only
@@ -90,7 +96,7 @@ export function registerSearchByNameTool(server: McpServer): void {
           healthServices: validateHealthBasketPreference(
             validatedDrugByNameInput.patient_preferences?.budget_conscious || false,
           ),
-          pageIndex: validatePageIndex(1), // Start with first page
+          pageIndex: validatePageIndex(validatedDrugByNameInput.page || 1),
           orderBy: determineOrderBy(validatedDrugByNameInput.search_scope),
         };
 

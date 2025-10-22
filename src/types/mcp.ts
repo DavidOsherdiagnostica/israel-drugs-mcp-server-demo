@@ -10,6 +10,11 @@ import { z } from 'zod';
 // Discovery & Search Tool Schemas
 export const DiscoverDrugByNameSchema = z.object({
   medication_query: z.string().min(1).describe('Drug name or partial name to search for'),
+  page: z
+    .number()
+    .min(1)
+    .default(1)
+    .describe('Page number for pagination (starts from 1, typically 10 results per page)'),
   patient_preferences: z
     .object({
       prescription_access: z
@@ -52,6 +57,11 @@ export const FindDrugsForSymptomSchema = z.object({
     .string()
     .min(1)
     .describe("Specific symptom within category (e.g., 'כאבי גרון')"),
+  page: z
+    .number()
+    .min(1)
+    .default(1)
+    .describe('Page number for pagination (starts from 1, typically 10 results per page)'),
   treatment_preferences: z
     .object({
       otc_preferred: z
@@ -78,7 +88,7 @@ export const ExploreGenericAlternativesSchema = z.object({
       .string()
       .optional()
       .describe('Specific active ingredient to find alternatives for'),
-    atc_code: z.string().optional().describe("ATC therapeutic code (level 4 only, e.g., 'N02BE')"),
+    atc_code: z.string().optional().describe("ATC therapeutic code (level 4, e.g., 'M01AB' for NSAIDs, 'N02BE' for analgesics)"),
     administration_route: z
       .string()
       .optional()
@@ -88,6 +98,11 @@ export const ExploreGenericAlternativesSchema = z.object({
       .optional()
       .describe('Name of reference drug to find alternatives for'),
   }),
+  page: z
+    .number()
+    .min(1)
+    .default(1)
+    .describe('Page number for pagination (starts from 1, typically 10 results per page)'),
   comparison_criteria: z
     .object({
       include_price_comparison: z

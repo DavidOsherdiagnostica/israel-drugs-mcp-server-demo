@@ -19,6 +19,7 @@ import {
 } from '../../utils/validators.js';
 import { classifyError, createComprehensiveErrorResponse } from '../../utils/errorHandler.js';
 import { API_BEHAVIOR, MCP_CONFIG, CLINICAL_MAPPINGS } from '../../config/constants.js';
+import { SYMPTOMS_LIST } from '../../config/symptomsList.js';
 
 type ValidatedFindDrugsForSymptomInput = FindDrugsForSymptomInput & {
   treatment_preferences?: {
@@ -37,36 +38,46 @@ interface TreatmentStrategy {
 
 // ===== TOOL REGISTRATION =====
 
-export function registerSearchBySymptomTool(server: McpServer): void {
-  server.registerTool(
-    'find_drugs_for_symptom',
-    {
-      title: 'Symptom-Based Treatment Discovery',
-      description: `Clinical decision support tool that identifies appropriate medications for specific medical conditions and symptoms. This tool provides evidence-based treatment options within the Israeli healthcare system framework.
+// Build complete symptoms description dynamically
+function buildSymptomsDescription(): string {
+  const symptomsText = SYMPTOMS_LIST.map(category => {
+    const symptoms = category.list
+      .filter(s => s.bySymptomName.trim() !== '')
+      .map(s => `"${s.bySymptomName}"`)
+      .join(', ');
+    return `**Category: "${category.bySymptomMain}"**\n  Symptoms: ${symptoms}`;
+  }).join('\n\n');
+
+  return `Clinical decision support tool that identifies appropriate medications for specific medical conditions and symptoms. This tool provides evidence-based treatment options within the Israeli healthcare system framework.
 
 **Clinical Purpose:** Essential for therapeutic decision-making, symptom management, and treatment planning. Helps healthcare providers and informed patients identify available treatment options for specific medical conditions.
 
-**Symptom Navigation System:**
-- primary_category: Major symptom category (e.g., "אף-אוזן-גרון", "שיכוך כאבים והורדת חום")
-- specific_symptom: Targeted symptom within category (e.g., "כאבי גרון", "כאבי ראש")
+**CRITICAL: Complete List of Available Symptom Categories and Symptoms**
+This tool ONLY accepts EXACT matches from the following comprehensive list. The system will reject any category or symptom not in this list. Use the exact Hebrew text as shown:
+
+${symptomsText}
+
+**Pagination:**
+- Results are returned 10 per page (typically)
+- Use 'page' parameter to navigate through results (starts from 1)
+- Check totalPages in response to see if more results are available
 
 **Treatment Preferences:**
 - otc_preferred: Prioritize over-the-counter treatments when available
 - health_basket_only: Show only medications covered by Israeli health basket
 - max_results: Control number of treatment options (default: 20)
 
-**Clinical Categories Available:**
-- Pain management and fever reduction
-- Respiratory conditions (nose, ear, throat)
-- Digestive issues and gastrointestinal disorders
-- Skin conditions and topical treatments
-- Allergic reactions and sensitivities
-- Mental health and sleep disorders
-- Cardiovascular and circulatory conditions
-
 **Output:** Returns prioritized treatment options with clinical context, safety information, dosage guidance, and therapeutic alternatives ranked by effectiveness and safety profile.
 
-**Clinical Context:** This tool should be used when seeking evidence-based treatment options for specific symptoms. Results include safety profiles, contraindications, and guidance for appropriate medical supervision.`,
+**Clinical Context:** This tool should be used when seeking evidence-based treatment options for specific symptoms. Results include safety profiles, contraindications, and guidance for appropriate medical supervision.`;
+}
+
+export function registerSearchBySymptomTool(server: McpServer): void {
+  server.registerTool(
+    'find_drugs_for_symptom',
+    {
+      title: 'Symptom-Based Treatment Discovery',
+      description: buildSymptomsDescription(),
       inputSchema: FindDrugsForSymptomSchema.shape,
     },
     async (input: FindDrugsForSymptomInput) => {
@@ -101,7 +112,7 @@ export function registerSearchBySymptomTool(server: McpServer): void {
           healthServices: validateHealthBasketPreference(
             validatedSymptomInput.treatment_preferences?.health_basket_only || false,
           ),
-          pageIndex: validatePageIndex(1),
+          pageIndex: validatePageIndex(validatedSymptomInput.page || 1),
           prescription: prescriptionFilter,
           orderBy: 5, // Use popularity-based ordering for symptoms
         };

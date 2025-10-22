@@ -20,6 +20,7 @@ import {
 } from '../../utils/validators.js';
 import { classifyError, createComprehensiveErrorResponse } from '../../utils/errorHandler.js';
 import { API_BEHAVIOR, MCP_CONFIG, CLINICAL_MAPPINGS } from '../../config/constants.js';
+import { COMMON_ROUTES } from '../../config/matanList.js';
 
 interface ProcessedSearchCriteria {
   searchType:
@@ -59,40 +60,58 @@ interface PriceData {
 
 // ===== TOOL REGISTRATION =====
 
-export function registerSearchGenericTool(server: McpServer): void {
-  server.registerTool(
-    'explore_generic_alternatives',
-    {
-      title: 'Therapeutic Alternatives Discovery',
-      description: `Advanced therapeutic intelligence tool that identifies generic alternatives, biosimilars, and medications within the same therapeutic class. Essential for cost-effective prescribing and therapeutic substitution within the Israeli healthcare system.
+// Build administration routes description dynamically
+function buildMatanDescription(): string {
+  const routesText = COMMON_ROUTES.map(route => 
+    `- ${route.hebrew} (ID: ${route.id}) - ${route.english}`
+  ).join('\n');
+
+  return `Advanced therapeutic intelligence tool that identifies generic alternatives, biosimilars, and medications within the same therapeutic class. Essential for cost-effective prescribing and therapeutic substitution within the Israeli healthcare system.
 
 **Clinical Purpose:** Supports evidence-based therapeutic decision-making by identifying clinically equivalent alternatives, enabling cost optimization while maintaining therapeutic efficacy. Critical for formulary management and patient access to affordable medications.
 
-**Search Strategies:**
-- active_ingredient: Find all formulations containing specific active pharmaceutical ingredient
-- atc_code: Discover medications within same therapeutic classification (ATC level 4)
-- administration_route: Locate alternatives with preferred delivery method
-- reference_drug_name: Find equivalents to specific brand medication
+**Search Strategies (use ONE at a time or combine active_ingredient/atc_code with administration_route):**
+1. **active_ingredient only**: Search by active ingredient (e.g., "paracetamol", "ibuprofen")
+   - Example: {"active_ingredient": "paracetamol"} finds all paracetamol formulations
+2. **atc_code only**: Search by ATC therapeutic category (Level 4 = 5 chars)
+   - Example: {"atc_code": "M01AB"} finds all NSAIDs in that category
+   - Example: {"atc_code": "N02BE"} finds all analgesics
+3. **administration_route only**: Filter by delivery method (matanId from list below)
+   - Example: {"administration_route": "פומי"} finds all oral medications
+4. **Combined searches**: Active ingredient + route OR ATC + route
+   - Example: {"active_ingredient": "paracetamol", "administration_route": "פומי"}
+
+**CRITICAL: Available Administration Routes (matanId)**
+Use Hebrew names EXACTLY as shown below:
+${routesText}
+
+**Pagination:**
+- Results are returned 10 per page (typically)
+- Use 'page' parameter to navigate through results (starts from 1)
+- Check totalPages in response to see if more results are available
+
+**ATC Classification Support:**
+- Supports ATC level 4 codes ONLY (5 characters: 1 letter + 2 digits + 2 letters)
+- Examples: "N02BE" (analgesics), "M01AB" (NSAIDs), "C09AA" (ACE inhibitors)
+- Automatically converts level 5 codes (7 chars) to level 4 (5 chars)
+- Any AI agent knows ATC codes - they are universal medical classification
 
 **Comparison Features:**
 - include_price_comparison: Economic analysis of therapeutic alternatives
 - health_basket_priority: Prioritize medications covered by Israeli health basket
 - same_strength_only: Limit to medications with identical dosage strengths
 
-**ATC Classification Support:**
-- Supports ATC level 4 codes only (4 characters, e.g., "N02BE" for analgesics)
-- Automatically converts level 5 codes to appropriate level 4 equivalents
-- Provides therapeutic category context and clinical rationale
-
-**Administration Route Optimization:**
-- Oral formulations (פומי) - tablets, capsules, solutions
-- Topical applications (עורי) - creams, ointments, patches
-- Injectable forms (תוך-ורידי, תוך-שרירי) - hospital/clinic use
-- Specialized routes (עיני, אוזני, רקטלי) - targeted applications
-
 **Output:** Returns comprehensive therapeutic alternatives with clinical equivalence assessment, cost analysis, bioavailability considerations, and substitution recommendations ranked by clinical appropriateness.
 
-**Clinical Context:** This tool is essential for therapeutic optimization, formulary compliance, cost containment, and ensuring patient access to clinically appropriate alternatives when primary therapy is unavailable or unaffordable.`,
+**Clinical Context:** This tool is essential for therapeutic optimization, formulary compliance, cost containment, and ensuring patient access to clinically appropriate alternatives when primary therapy is unavailable or unaffordable.`;
+}
+
+export function registerSearchGenericTool(server: McpServer): void {
+  server.registerTool(
+    'explore_generic_alternatives',
+    {
+      title: 'Therapeutic Alternatives Discovery',
+      description: buildMatanDescription(),
       inputSchema: ExploreGenericAlternativesSchema.shape,
     },
     async (input: ExploreGenericAlternativesInput) => {
@@ -298,7 +317,7 @@ async function executeDirectAlternativesSearch(
     atcId: criteria.searchType === 'atc_code' ? criteria.primaryValue : null,
     matanId: criteria.routeId || null,
     packageId: null, // Not commonly used for therapeutic alternatives
-    pageIndex: validatePageIndex(1),
+    pageIndex: validatePageIndex(userInput.page || 1),
     orderBy: 1, // Alternative ordering for better generic grouping
   };
 
