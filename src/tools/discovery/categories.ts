@@ -33,13 +33,14 @@ export function registerTherapeuticCategoriesTool(server: McpServer): void {
 **ATC Classification System:**
 - 1,172 therapeutic codes covering complete pharmaceutical spectrum
 - Hierarchical organization from anatomical groups to specific chemicals
-- Level 1: Anatomical main groups (A-V, 14 major body systems)
+- Level 1: Anatomical main groups (single letter: A, B, C, D, G, H, J, L, M, N, P, R, S, V)
 - Level 2: Therapeutic subgroups (organ/system specific)
 - Level 3: Pharmacological subgroups (mechanism of action)
 - Level 4: Chemical subgroups (therapeutic class) - PRIMARY SEARCH LEVEL
 - Level 5: Chemical substances (specific active ingredients)
 
-**Major Therapeutic Areas:**
+**Major Therapeutic Areas (VALID therapeutic_area VALUES - USE ONLY THESE):**
+**CRITICAL: The therapeutic_area parameter ONLY accepts single-letter ATC codes from this list:**
 - A: Alimentary tract and metabolism (digestive, diabetes, nutrition)
 - B: Blood and blood forming organs (anticoagulants, hematology)
 - C: Cardiovascular system (heart, circulation, blood pressure)
@@ -55,9 +56,33 @@ export function registerTherapeuticCategoriesTool(server: McpServer): void {
 - S: Sensory organs (eyes, ears)
 - V: Various (diagnostics, surgery, others)
 
+**IMPORTANT: therapeutic_area Parameter Rules:**
+- MUST be a single uppercase letter from the list above (A, B, C, D, G, H, J, L, M, N, P, R, S, V)
+- DO NOT use full names like "Cardiovascular system" or "cardiovascular" - use only "C"
+- DO NOT use lowercase letters - use uppercase only
+- DO NOT invent or use other letters - only the 14 letters listed above are valid
+
+**Next Steps After Category Discovery:**
+**CRITICAL WORKFLOW:** The ATC codes returned by this tool enable you to search for specific medications using other tools:
+1. Receive ATC codes (e.g., "C09AA", "C09CA", "C07AB") from this tool
+2. Use the 'explore_generic_alternatives' tool with the 'atc_code' parameter
+3. Example: explore_generic_alternatives({ search_criteria: { atc_code: "C09AA" } })
+4. This will return all medications in that specific ATC category with detailed information
+5. Each returned category includes a 'code' field (ATC code) that can be used directly with other tools
+
+**Output Structure:**
+Each category in the response includes:
+- 'code': The ATC code (e.g., "C09AA") - USE THIS with explore_generic_alternatives tool
+- 'name': The category name (e.g., "ACE INHIBITORS, PLAIN")
+- 'level': ATC hierarchy level (1-5)
+- 'parent_code': Parent category code
+- 'clinical_description': Clinical description with anatomical system
+- Additional clinical intelligence fields
+
 **Exploration Options:**
 - level: Focus on specific ATC hierarchy level (main_groups, subgroups, all)
-- therapeutic_area: Filter by anatomical system or medical specialty
+- therapeutic_area: Filter by single-letter ATC code (A, B, C, D, G, H, J, L, M, N, P, R, S, V ONLY)
+- search_filter: Text search filter for category names (optional)
 - include_usage_patterns: Show prescribing frequency and clinical patterns
 
 **Clinical Intelligence Features:**
@@ -66,9 +91,9 @@ export function registerTherapeuticCategoriesTool(server: McpServer): void {
 - Prescribing pattern analysis and clinical preferences
 - Generic substitution possibilities within therapeutic classes
 
-**Output:** Returns structured therapeutic classification with clinical context, prescribing guidance, therapeutic relationships, and intelligent navigation support for optimal drug category exploration.
+**Output:** Returns structured therapeutic classification with clinical context, prescribing guidance, therapeutic relationships, and intelligent navigation support for optimal drug category exploration. Each category includes the ATC code that can be used directly with 'explore_generic_alternatives' to find specific medications.
 
-**Clinical Context:** This tool serves as the foundational reference for understanding pharmaceutical classifications, identifying therapeutic alternatives within drug classes, and supporting evidence-based prescribing decisions within established therapeutic frameworks.`,
+**Clinical Context:** This tool serves as the foundational reference for understanding pharmaceutical classifications, identifying therapeutic alternatives within drug classes, and supporting evidence-based prescribing decisions within established therapeutic frameworks. The ATC codes returned enable seamless integration with medication search tools for comprehensive pharmaceutical research.`,
       inputSchema: ExploreTherapeuticCategoriesSchema.shape
     },
     async (input: ExploreTherapeuticCategoriesInput) => {
@@ -199,8 +224,10 @@ async function processTherapeuticCategories(
   
   // Sort by clinical relevance and therapeutic importance
   enhancedData.sort((a, b) => {
-    const priorityA = getTherapeuticPriority(a.id);
-    const priorityB = getTherapeuticPriority(b.id);
+    const codeA = a.category || a.code || a.id || "";
+    const codeB = b.category || b.code || b.id || "";
+    const priorityA = getTherapeuticPriority(codeA);
+    const priorityB = getTherapeuticPriority(codeB);
     return priorityB - priorityA;
   });
   
@@ -214,26 +241,26 @@ async function generateBasicATCStructure(userInput: ValidatedExploreTherapeuticC
   // console.info("Generating basic ATC structure");
   
   const basicATCGroups = [
-    { id: "A", text: "ALIMENTARY TRACT AND METABOLISM" },
-    { id: "B", text: "BLOOD AND BLOOD FORMING ORGANS" },
-    { id: "C", text: "CARDIOVASCULAR SYSTEM" },
-    { id: "D", text: "DERMATOLOGICALS" },
-    { id: "G", text: "GENITOURINARY SYSTEM AND SEX HORMONES" },
-    { id: "H", text: "SYSTEMIC HORMONAL PREPARATIONS" },
-    { id: "J", text: "ANTIINFECTIVES FOR SYSTEMIC USE" },
-    { id: "L", text: "ANTINEOPLASTIC AND IMMUNOMODULATING AGENTS" },
-    { id: "M", text: "MUSCULO-SKELETAL SYSTEM" },
-    { id: "N", text: "NERVOUS SYSTEM" },
-    { id: "P", text: "ANTIPARASITIC PRODUCTS, INSECTICIDES AND REPELLENTS" },
-    { id: "R", text: "RESPIRATORY SYSTEM" },
-    { id: "S", text: "SENSORY ORGANS" },
-    { id: "V", text: "VARIOUS" }
+    { category: "A", description: "ALIMENTARY TRACT AND METABOLISM" },
+    { category: "B", description: "BLOOD AND BLOOD FORMING ORGANS" },
+    { category: "C", description: "CARDIOVASCULAR SYSTEM" },
+    { category: "D", description: "DERMATOLOGICALS" },
+    { category: "G", description: "GENITOURINARY SYSTEM AND SEX HORMONES" },
+    { category: "H", description: "SYSTEMIC HORMONAL PREPARATIONS" },
+    { category: "J", description: "ANTIINFECTIVES FOR SYSTEMIC USE" },
+    { category: "L", description: "ANTINEOPLASTIC AND IMMUNOMODULATING AGENTS" },
+    { category: "M", description: "MUSCULO-SKELETAL SYSTEM" },
+    { category: "N", description: "NERVOUS SYSTEM" },
+    { category: "P", description: "ANTIPARASITIC PRODUCTS, INSECTICIDES AND REPELLENTS" },
+    { category: "R", description: "RESPIRATORY SYSTEM" },
+    { category: "S", description: "SENSORY ORGANS" },
+    { category: "V", description: "VARIOUS" }
   ];
   
   // Apply level filtering to basic structure if needed
   let filteredGroups = basicATCGroups;
   if (userInput.level === "main_groups") {
-    filteredGroups = basicATCGroups.filter(item => item.id.length === 1);
+    filteredGroups = basicATCGroups.filter(item => item.category.length === 1);
   }
   
   // Apply therapeutic area filtering if specified
@@ -242,17 +269,20 @@ async function generateBasicATCStructure(userInput: ValidatedExploreTherapeuticC
   }
   
   return filteredGroups.map(item => ({
-    ...item,
+    code: item.category,
+    name: item.description,
+    category: item.category,
+    description: item.description,
     therapeutic_analysis: {
       atc_level: 1,
-      anatomical_target: getAnatomicalTarget(item.id),
-      clinical_scope: getClinicalScope(item.id),
+      anatomical_target: getAnatomicalTarget(item.category),
+      clinical_scope: getClinicalScope(item.category),
       therapeutic_importance: "high",
       data_source: "basic_structure"
     },
-    clinical_applications: [`Primary medications for ${item.text.toLowerCase()}`],
+    clinical_applications: [`Primary medications for ${item.description.toLowerCase()}`],
     prescribing_context: {
-      specialty_areas: getSpecialtyAreas(item.id),
+      specialty_areas: getSpecialtyAreas(item.category),
       prescription_patterns: "varies_by_specific_medication"
     },
     basic_structure_mode: true
@@ -260,13 +290,26 @@ async function generateBasicATCStructure(userInput: ValidatedExploreTherapeuticC
 }
 
 function filterByTherapeuticArea(atcData: any[], therapeuticArea: string): any[] {
-  const areaLower = therapeuticArea.toLowerCase();
+  const areaUpper = therapeuticArea.trim().toUpperCase();
   
-  // Map common therapeutic area requests to ATC prefixes
+  // VALID ATC main group letters - ONLY these are allowed
+  const validATCGroups = ["A", "B", "C", "D", "G", "H", "J", "L", "M", "N", "P", "R", "S", "V"];
+  
+  // If user provided a valid single letter, use it directly
+  if (validATCGroups.includes(areaUpper) && areaUpper.length === 1) {
+    return atcData.filter((item: any) => {
+      const code = (item.category || item.code || item.id || "").toUpperCase();
+      return code.startsWith(areaUpper);
+    });
+  }
+  
+  // Legacy support: Map common therapeutic area names to ATC prefixes
+  const areaLower = therapeuticArea.toLowerCase();
   const areaMapping: Record<string, string[]> = {
     "cardiovascular": ["C"],
     "heart": ["C"],
     "blood_pressure": ["C"],
+    "hypertension": ["C"],
     "respiratory": ["R"],
     "lungs": ["R"],
     "breathing": ["R"],
@@ -294,19 +337,25 @@ function filterByTherapeuticArea(atcData: any[], therapeuticArea: string): any[]
     "bones": ["M"]
   };
   
-  const relevantPrefixes = areaMapping[areaLower] || [therapeuticArea.toUpperCase()];
+  const relevantPrefixes = areaMapping[areaLower] || [];
+  
+  // If no mapping found and not a valid single letter, return empty
+  if (relevantPrefixes.length === 0) {
+    return [];
+  }
   
   return atcData.filter((item: any) => {
-    const code = item.id ? item.id.toUpperCase() : "";
+    const code = (item.category || item.code || item.id || "").toUpperCase();
     return relevantPrefixes.some(prefix => code.startsWith(prefix));
   });
 }
 
 function filterByAtcLevel(atcData: any[], level: "main_groups" | "subgroups"): any[] {
   return atcData.filter((item: any) => {
-    if (!item.id) return false;
+    const code = item.category || item.code || item.id || "";
+    if (!code) return false;
     
-    const codeLength = item.id.length;
+    const codeLength = code.length;
     
     if (level === "main_groups") {
       return codeLength === 1; // Level 1: A, B, C, etc.
@@ -330,8 +379,8 @@ async function attemptTherapeuticCategoriesRecovery(
 // ===== CLINICAL INTELLIGENCE GENERATION =====
 
 async function generateTherapeuticAnalysis(atcItem: any): Promise<Record<string, unknown>> {
-  const atcCode = atcItem.id || "";
-  const atcText = atcItem.text || "";
+  const atcCode = atcItem.category || atcItem.code || atcItem.id || "";
+  const atcText = atcItem.description || atcItem.name || atcItem.text || "";
   
   return {
     atc_level: determineAtcLevel(atcCode),
@@ -344,8 +393,8 @@ async function generateTherapeuticAnalysis(atcItem: any): Promise<Record<string,
 }
 
 async function generateClinicalApplications(atcItem: any): Promise<string[]> {
-  const atcCode = atcItem.id || "";
-  const atcText = atcItem.text || "";
+  const atcCode = atcItem.category || atcItem.code || atcItem.id || "";
+  const atcText = atcItem.description || atcItem.name || atcItem.text || "";
   
   const applications: string[] = [];
   
@@ -380,7 +429,7 @@ async function generateClinicalApplications(atcItem: any): Promise<string[]> {
 }
 
 async function generatePrescribingContext(atcItem: any): Promise<Record<string, unknown>> {
-  const atcCode = atcItem.id || "";
+  const atcCode = atcItem.category || atcItem.code || atcItem.id || "";
   
   return {
     specialty_areas: getSpecialtyAreas(atcCode),
@@ -395,7 +444,7 @@ async function findRelatedCategories(
   atcItem: any, 
   allAtcData: any[]
 ): Promise<string[]> {
-  const atcCode = atcItem.id || "";
+  const atcCode = atcItem.category || atcItem.code || atcItem.id || "";
   const related: string[] = [];
   
   // Find related categories based on therapeutic relationships
@@ -404,14 +453,19 @@ async function findRelatedCategories(
     
     // Find other codes with same 3-character prefix
     const relatedCodes = allAtcData
-      .filter((item: any) => 
-        item.id && 
-        item.id !== atcCode && 
-        item.id.startsWith(prefix) && 
-        item.id.length === atcCode.length
-      )
+      .filter((item: any) => {
+        const itemCode = item.category || item.code || item.id || "";
+        return itemCode && 
+               itemCode !== atcCode && 
+               itemCode.startsWith(prefix) && 
+               itemCode.length === atcCode.length;
+      })
       .slice(0, 5)
-      .map((item: any) => `${item.id}: ${item.text || 'Unknown'}`);
+      .map((item: any) => {
+        const itemCode = item.category || item.code || item.id || "";
+        const itemName = item.description || item.name || item.text || "Unknown";
+        return `${itemCode}: ${itemName}`;
+      });
     
     related.push(...relatedCodes);
   }
@@ -424,7 +478,7 @@ async function findRelatedCategories(
 }
 
 async function generateUsagePatterns(atcItem: any): Promise<Record<string, unknown>> {
-  const atcCode = atcItem.id || "";
+  const atcCode = atcItem.category || atcItem.code || atcItem.id || "";
   
   return {
     prescribing_frequency: estimatePrescribingFrequency(atcCode),
