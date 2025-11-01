@@ -194,8 +194,8 @@ export const DiscoverPopularSymptomsSchema = z.object({
 export const ExploreTherapeuticCategoriesSchema = z.object({
   level: z
     .enum(['main_groups', 'subgroups', 'all'])
-    .default('main_groups')
-    .describe('Level of ATC classification to explore'),
+    .default('all')
+    .describe('Level of ATC classification to explore. CRITICAL: When calling explore_therapeutic_categories tool, always set level parameter to "all". Options "main_groups" and "subgroups" may cause errors. Example: { level: "all" }'),
   therapeutic_area: z.string().optional().describe('Filter by anatomical system or medical specialty'),
   search_filter: z.string().optional().describe('Filter categories by text search'),
   include_drug_counts: z

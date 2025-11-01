@@ -81,6 +81,7 @@ Each category in the response includes:
 
 **Exploration Options:**
 - level: Focus on specific ATC hierarchy level (main_groups, subgroups, all)
+  **CRITICAL: When calling this tool, ALWAYS set the "level" parameter to "all". The "main_groups" and "subgroups" options may cause errors due to API limitations. Example: explore_therapeutic_categories({ level: "all", therapeutic_area: "C" })**
 - therapeutic_area: Filter by single-letter ATC code (A, B, C, D, G, H, J, L, M, N, P, R, S, V ONLY)
 - search_filter: Text search filter for category names (optional)
 - include_usage_patterns: Show prescribing frequency and clinical patterns
