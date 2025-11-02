@@ -65,15 +65,34 @@ app.use(cors({
         const sessionId = req.headers['mcp-session-id'] as string | undefined;
         let transport: StreamableHTTPServerTransport;
 
+        console.log(`📨 POST /mcp - sessionId: ${sessionId || 'none'}, isInitialize: ${isInitializeRequest(req.body)}, existingTransports: ${Object.keys(transports).length}`);
+
         if (sessionId && transports[sessionId]) {
             // Reuse existing transport
+            console.log(`♻️ Reusing existing transport for session: ${sessionId}`);
             transport = transports[sessionId];
+        } else if (sessionId && !transports[sessionId] && isInitializeRequest(req.body)) {
+            // 🔥 Session recovery: Client has sessionId but server doesn't recognize it
+            // This happens after server restart or session timeout
+            // Create new transport but let client know via 400 to reinitialize
+            console.log(`⚠️ Session ${sessionId} not found (client has sessionId but server doesn't), client needs to reinitialize`);
+            res.status(400).json({
+                jsonrpc: '2.0',
+                error: {
+                    code: -32000,
+                    message: 'Session expired or not found. Please reinitialize.'
+                },
+                id: (req.body as any).id || null
+            });
+            return;
         } else if (!sessionId && isInitializeRequest(req.body)) {
             // New initialization request
+            console.log(`🆕 Creating new transport (no sessionId, isInitialize=true)`);
             transport = new StreamableHTTPServerTransport({
                 sessionIdGenerator: () => randomUUID(),
                 onsessioninitialized: (sessionId) => {
                     transports[sessionId] = transport;
+                    console.log(`✅ New session initialized: ${sessionId}, total transports: ${Object.keys(transports).length}`);
                 },
                 enableDnsRebindingProtection: false,
                 allowedHosts: ['*']
@@ -82,6 +101,7 @@ app.use(cors({
             // Clean up transport when closed
             transport.onclose = () => {
                 if (transport.sessionId) {
+                    console.log(`🔌 Session closed: ${transport.sessionId}, remaining transports: ${Object.keys(transports).length - 1}`);
                     delete transports[transport.sessionId];
                 }
             };
@@ -89,13 +109,15 @@ app.use(cors({
             const server = createServer();
             await server.connect(transport);
         } else {
+            // Invalid request: has sessionId but not in our map, and not an initialize request
+            console.log(`❌ Invalid request: sessionId=${sessionId}, isInitialize=${isInitializeRequest(req.body)}, method=${req.body.method}`);
             res.status(400).json({
                 jsonrpc: '2.0',
                 error: {
                     code: -32000,
-                    message: 'Bad Request: No valid session ID provided'
+                    message: 'Bad Request: Invalid session or missing initialization'
                 },
-                id: null
+                id: (req.body as any).id || null
             });
             return;
         }
