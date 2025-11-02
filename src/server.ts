@@ -71,28 +71,19 @@ app.use(cors({
             // Reuse existing transport
             console.log(`♻️ Reusing existing transport for session: ${sessionId}`);
             transport = transports[sessionId];
-        } else if (sessionId && !transports[sessionId] && isInitializeRequest(req.body)) {
-            // 🔥 Session recovery: Client has sessionId but server doesn't recognize it
-            // This happens after server restart or session timeout
-            // Create new transport but let client know via 400 to reinitialize
-            console.log(`⚠️ Session ${sessionId} not found (client has sessionId but server doesn't), client needs to reinitialize`);
-            res.status(400).json({
-                jsonrpc: '2.0',
-                error: {
-                    code: -32000,
-                    message: 'Session expired or not found. Please reinitialize.'
-                },
-                id: (req.body as any).id || null
-            });
-            return;
-        } else if (!sessionId && isInitializeRequest(req.body)) {
-            // New initialization request
-            console.log(`🆕 Creating new transport (no sessionId, isInitialize=true)`);
+        } else if (isInitializeRequest(req.body)) {
+            // Initialize request - create new session (ignore old sessionId if provided)
+            if (sessionId) {
+                console.log(`🔄 Initialize with old sessionId ${sessionId} - creating new session`);
+            } else {
+                console.log(`🆕 Creating new transport (no sessionId, isInitialize=true)`);
+            }
+            
             transport = new StreamableHTTPServerTransport({
                 sessionIdGenerator: () => randomUUID(),
-                onsessioninitialized: (sessionId) => {
-                    transports[sessionId] = transport;
-                    console.log(`✅ New session initialized: ${sessionId}, total transports: ${Object.keys(transports).length}`);
+                onsessioninitialized: (newSessionId) => {
+                    transports[newSessionId] = transport;
+                    console.log(`✅ New session initialized: ${newSessionId}, total transports: ${Object.keys(transports).length}`);
                 },
                 enableDnsRebindingProtection: false,
                 allowedHosts: ['*']
@@ -108,14 +99,27 @@ app.use(cors({
 
             const server = createServer();
             await server.connect(transport);
+        } else if (sessionId && !transports[sessionId]) {
+            // 🔥 Client has sessionId but server doesn't recognize it (not an initialize request)
+            // This is common after server cold start - tell client to reinitialize
+            console.log(`🔄 Session ${sessionId} not found for ${req.body.method} - returning 404 for SDK to reinitialize`);
+            res.status(404).json({
+                jsonrpc: '2.0',
+                error: {
+                    code: -32001,
+                    message: 'Session not found. Please reinitialize connection.'
+                },
+                id: (req.body as any).id || null
+            });
+            return;
         } else {
-            // Invalid request: has sessionId but not in our map, and not an initialize request
+            // Other invalid cases
             console.log(`❌ Invalid request: sessionId=${sessionId}, isInitialize=${isInitializeRequest(req.body)}, method=${req.body.method}`);
             res.status(400).json({
                 jsonrpc: '2.0',
                 error: {
                     code: -32000,
-                    message: 'Bad Request: Invalid session or missing initialization'
+                    message: 'Bad Request: Invalid request format'
                 },
                 id: (req.body as any).id || null
             });
