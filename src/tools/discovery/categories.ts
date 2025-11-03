@@ -70,6 +70,18 @@ export function registerTherapeuticCategoriesTool(server: McpServer): void {
 4. This will return all medications in that specific ATC category with detailed information
 5. Each returned category includes a 'code' field (ATC code) that can be used directly with other tools
 
+**Workflow Pattern for "Find All Drugs for [Condition]" Queries:**
+When users request comprehensive drug lists (e.g., "all hypertension medications"):
+1. Call THIS tool first with appropriate therapeutic_area (e.g., "C" for cardiovascular)
+2. Response will contain multiple ATC codes (typically 50-100 codes for broad areas)
+3. Identify which codes are clinically relevant to the condition
+4. For EACH relevant code, call 'explore_generic_alternatives' separately
+5. Each code yields DIFFERENT medications - accumulate all results
+6. Continue iterating through all relevant codes until comprehensive coverage achieved
+7. Combine and present the complete medication list
+
+**Important:** This is a two-step process - this tool provides the "map" (ATC codes), and 'explore_generic_alternatives' provides the actual medications for each code.
+
 **Output Structure:**
 Each category in the response includes:
 - 'code': The ATC code (e.g., "C09AA") - USE THIS with explore_generic_alternatives tool

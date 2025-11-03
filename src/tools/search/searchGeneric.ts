@@ -91,10 +91,27 @@ ${routesText}
 - Check totalPages in response to see if more results are available
 
 **ATC Classification Support:**
-- Supports ATC level 4 codes ONLY (5 characters: 1 letter + 2 digits + 2 letters)
+- **Recommended**: Use ATC level 4 codes (5 characters: 1 letter + 2 digits + 2 letters) for optimal results
 - Examples: "N02BE" (analgesics), "M01AB" (NSAIDs), "C09AA" (ACE inhibitors)
+- **Best Practice**: When 'explore_therapeutic_categories' returns ATC codes, use those exact codes directly - they're already optimized for this tool
 - Automatically converts level 5 codes (7 chars) to level 4 (5 chars)
-- Any AI agent knows ATC codes - they are universal medical classification
+- Broader codes (2-3 chars) may also work, but Level 4 provides the most comprehensive and specific results
+
+**Workflow Patterns for Comprehensive Drug Discovery:**
+When asked for "all drugs for [condition]" (e.g., "all hypertension drugs"):
+1. First, call 'explore_therapeutic_categories' with relevant therapeutic_area (e.g., "C" for cardiovascular)
+2. Review returned ATC codes and identify relevant categories (multiple codes expected)
+3. For EACH relevant ATC code, call THIS tool separately with that code
+4. Each call returns different drugs - accumulate results from all calls
+5. Continue until all relevant ATC codes have been queried
+6. Present combined results from all categories
+
+**Why this workflow matters:**
+- Each ATC code represents a DIFFERENT drug category with DIFFERENT medications
+- Calling this tool with "C09AA" returns ACE inhibitors (23 drugs)
+- Calling with "C07AB" returns Beta blockers (23 different drugs)
+- Calling with "C08CA" returns Calcium blockers (23 more different drugs)
+- DO NOT assume all drugs are found in one call - iterate through all relevant ATC codes
 
 **Comparison Features:**
 - include_price_comparison: Economic analysis of therapeutic alternatives
